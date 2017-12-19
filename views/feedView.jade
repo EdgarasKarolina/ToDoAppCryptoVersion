@@ -1,0 +1,36 @@
+extends layout
+
+
+block content
+
+  .container
+    P
+      a(href='/createToDo')
+        button.btn.btn-success(type="button") Add new ToDo task
+        &nbsp;
+      a(href='/sendToDo')
+        button.btn.btn-success(type="button") Send ToDo task to other user
+        &nbsp;
+      a(href='/logout')
+        button.btn.btn-danger(type="button") Logout
+        &nbsp;
+      p Welcome #{user.username}
+
+    h1 List of ToDo tasks 
+    p 
+      a(href='/feed')
+        button.btn.btn-primary(type="button") All messages
+        &nbsp;
+      a(href='/importantToDo')
+        button.btn.btn-primary(type="button") Important messages
+        &nbsp;
+      a(href='/notImportantToDo')
+        button.btn.btn-primary(type="button") Not important messages
+   
+    each item, i in messages
+     li.list-group-item #{item.date} 
+      h3 #{item.content}    
+      a(href="#" class="deleteUser" data-id = "#{item._id}")
+        button.btn.btn-danger(type="button") Delete
+
+    

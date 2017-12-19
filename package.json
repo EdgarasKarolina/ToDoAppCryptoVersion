@@ -1,0 +1,38 @@
+{
+  "name": "todoapp",
+  "version": "1.0.0",
+  "description": "This is an ToDo application reated by Edgaras, Jakob and Andreas for the Testing exam at KEA",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "author": "Edgaras, Jakob, Andreas",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "chai": "^4.1.2",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "crypto2": "^0.3.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "jade": "^1.11.0",
+    "mocha": "^4.0.1",
+    "mocha-directory": "^2.3.0",
+    "mokjs": "0.0.3",
+    "mongoose": "^4.4.1",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^4.4.0",
+    "path": "^0.12.7",
+    "request": "^2.83.0"
+  },
+  "engines": {
+    "node": "6.11.3"
+  },
+  "directories": {
+    "test": "test"
+  }
+}

@@ -1,0 +1,25 @@
+extends layout
+        
+
+block content
+  .container
+    h1 Send a message to another User
+    br
+    form(role='form', action="/sendToDo",method="post", style='max-width: 300px;')
+      .form-group
+        textarea(rows='4', cols='50', name='content', placeholder='Write message here ')
+        h4 Important
+        input.form-control(type='radio', name="importance", value='Important')
+        h4 Not Important
+        input.form-control(type='radio', name="importance", value='Notimportant')
+
+        .form-group
+          each item, i in accounts
+        
+           <input type="radio" name="username" value=#{item.username}> #{item.username} <br>
+        
+        
+      button.btn.btn-primary(type='submit') Submit
+      &nbsp;
+      a(href='/feed')
+        button.btn.btn-danger(type="button") Cancel

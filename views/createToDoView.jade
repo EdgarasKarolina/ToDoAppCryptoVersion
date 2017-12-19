@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  .container
+    h1 Insert a new message
+    br
+    form(role='form', action="/createToDo",method="post", style='max-width: 600px;')
+      <input type='hidden', name='username', value=#{user.username}><br>
+      .form-group
+        textarea(rows='4', cols='50', name='content', placeholder='Write message here ')
+        h4 Important
+        input.form-control(type='radio', name="importance", value='Important') 
+        h4 Not important
+        input.form-control(type='radio', name="importance", value='Notimportant')
+        
+        
+        
+      button.btn.btn-primary(type='submit') Submit
+      &nbsp;
+      a(href='/feed')
+        button.btn.btn-danger(type="button") Cancel
