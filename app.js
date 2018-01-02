@@ -47,8 +47,9 @@ passport.deserializeUser(Account.deserializeUser());
 
 
 //connecting to database
-var uri = 'mongodb://edgaras:belekas@ds129386.mlab.com:29386/todoapplication';
-mongoose.connect(uri);
+//var uri = 'mongodb://<dbuser>:<dbpassword>@ds241065.mlab.com:41065/todocrypto';
+//mongoose.connect(uri);
+mongoose.connect('mongodb://localhost/cryptoDB');
 
 //handling errors
 

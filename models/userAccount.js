@@ -9,6 +9,12 @@ const Account = new Schema({
 
     password: {
     	type: String
+    },
+    publicKey: {
+    	type: String
+    },
+    privateKey: {
+    	type: String
     }
 });
 

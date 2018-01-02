@@ -23,28 +23,18 @@ var publicKeyFinished;
 var encryptedMessage;
 var decryptedMessage;
 
-router.get('/1', (req, res) => {
-    crypto2.createKeyPair((err, privateKey, publicKey) => {
-        privateKeyFinished = privateKey;
-        console.log("privateKey" + privateKeyFinished );
-        publicKeyFinished = publicKey;
-        console.log("publicKey" + publicKeyFinished );
-      });
-}); 
+var receiversPublicKey;
+var encryptedMessageToReceiver;
 
-router.get('/2', (req, res) => {
-    crypto2.encrypt.rsa('the native web', publicKeyFinished, (err, encrypted) => {
-        encryptedMessage = encrypted;
-        console.log("encrypted message" + encryptedMessage );
-      });
-}); 
+var receiversPrivateKey;
+var decryptedMessageToReceiver;
 
-router.get('/3', (req, res) => {
-    crypto2.decrypt.rsa(encryptedMessage, privateKeyFinished, (err, decrypted) => {
-        decryptedMessage = decrypted;
-        console.log("dencrypted message" + decryptedMessage );
-      });
-}); 
+var clearMessages = [];
+
+var contents = [];
+
+
+
 
 router.get('/', (req, res) => {
     res.render('loginView', { user : req.user });
@@ -52,6 +42,11 @@ router.get('/', (req, res) => {
 
 //GET register view
 router.get('/register', (req, res) => {
+
+    crypto2.createKeyPair((err, privateKey, publicKey) => {
+        privateKeyFinished = privateKey;
+        publicKeyFinished = publicKey;
+      });
     res.render('registerView', { });
 });
 
@@ -62,8 +57,8 @@ router.post('/register', (req, res, next) => {
     var passwordContainsUpperCase = greetings.containsUpperCases(req.body.password);
 
     if(userName && passwordContainsNumber && passwordContainsUpperCase)
-    {
-        Account.register(new Account({ username : req.body.username }), req.body.password, (err, account) => {
+    {  
+        Account.register(new Account({ username : req.body.username, publicKey : publicKeyFinished, privateKey : privateKeyFinished }), req.body.password, (err, account) => {
             if (err) {
               return res.render('registerView', { error : err.message });
             }
@@ -91,6 +86,26 @@ router.post('/login', passport.authenticate('local', { failureRedirect: '/login'
         if (err) {
             return next(err);
         }
+
+        contents = [];
+        
+        var vardas = req.user.username;
+        var sudas = req.user.privateKey;
+        console.log("privatus suda yra: " + sudas);
+
+        Message.find({"username" : req.user.username}).distinct('content', function(error, ids) {
+            var count;
+            var messagesLenght = ids.length;
+    
+            for (count = 0; count < ids.length; count++) {            
+                    crypto2.decrypt.rsa(ids[count], sudas, (err, decrypted) => { 
+                        contents.push(decrypted);
+                })                              
+            }       
+    });
+
+
+
         res.redirect('/');
     });
 });
@@ -105,6 +120,15 @@ router.get('/logout', (req, res, next) => {
         res.redirect('/');
     });
 });
+
+
+
+
+router.get('/encryptedFeed', (req , res) =>{
+
+    res.render('decryptedfeedView',{messages: contents, user : req.user})
+  
+ });
 
 
  //GET feed view by logged in user
@@ -129,7 +153,6 @@ router.get('/importantToDo',(req , res) =>{
 router.get('/notImportantToDo',(req , res) =>{
     Message.find({"username" : req.user.username, "importance" : "Notimportant"}, function(err , i){
         if (err) return console.log(err)
-
         res.render('feedView',{messages: i, user : req.user})  
      })
  }); 
@@ -174,30 +197,49 @@ router.get('/sendToDo',(req , res) =>{
      })
  });
 
-//POST send ToDO to another user
-router.post('/sendToDo',(req, res, next) => {
-   // Message.save(new Message({username : req.body.username, content : req.body.content})
-   var message = new Message()
-   message.username = req.body.username
-   message.content = req.body.content
-   message.importance = req.body.importance
-   var dt1 = new Date();
-   message.date = dt1
-   message.save(req.body, function(err, data) {
-    Message.find({"username" : req.user.username}, function(err, i) {
-        if (err) return console.log(err) 
 
-            res.render('feedView', {messages: i, user : req.user})     
+router.post('/sendToDo',(req, res, next) => {
+ 
+    Account.findOne({ "username" : req.body.username}, function (err, doc){
+     receiversPublicKey = doc.publicKey;
+     console.log("receiversPublicKey: " + receiversPublicKey);
+
+     crypto2.encrypt.rsa(req.body.content, receiversPublicKey, (err, encrypted) => {
+        encryptedMessageToReceiver = encrypted;
+        console.log("encrypted message: " + encryptedMessageToReceiver );
+     
+        Account.findOne({ "username" : req.body.username}, function (err, doc){
+            receiversPrivateKey = doc.privateKey;
+            console.log("receiversPrivateKey: " + receiversPrivateKey);
+ 
+    var message = new Message()
+    message.username = req.body.username
+    message.content = encryptedMessageToReceiver
+    message.importance = req.body.importance
+    var dt1 = new Date();
+    message.date = dt1
+
+    crypto2.decrypt.rsa(encryptedMessageToReceiver, receiversPrivateKey, (err, decrypted) => {
+        decryptedMessageToReceiver = decrypted;
+        console.log("dencrypted message: " + decryptedMessageToReceiver );
+      
+    message.save(req.body, function(err, data) {
+     Message.find({"username" : req.user.username}, function(err, i) {
+         if (err) return console.log(err) 
+ 
+             res.render('feedView', {messages: i, user : req.user})     
+            });
+            });
+            });
+            });
+     });
     });
-   });
-});  
+ });
 
 
 //delete message
-router.delete('/messages/:id',(req , res) =>{
-    
-    console.log(req.params.id)
-    
+router.delete('/messages/:id',(req , res) =>{   
+    console.log(req.params.id)   
       Message.remove({"_id": ObjectId(req.params.id)}, function(err, result){
         if (err) {
           console.log(err);

@@ -14,7 +14,7 @@ block content
       a(href='/logout')
         button.btn.btn-danger(type="button") Logout
         &nbsp;
-      p Welcome #{user.username}
+     
 
     h1 List of ToDo tasks 
     p 
@@ -31,9 +31,5 @@ block content
         button.btn.btn-primary(type="button") Decrypt
    
     each item, i in messages
-     li.list-group-item #{item.date} 
-      h3 #{item.content}    
-      a(href="#" class="deleteUser" data-id = "#{item._id}")
-        button.btn.btn-danger(type="button") Delete
-
-    
+     li.list-group-item #{item}   
+      
